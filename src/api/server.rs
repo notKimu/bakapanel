@@ -74,9 +74,10 @@ pub async fn get_all_servers(State(config): State<Arc<Config>>) -> Json<Vec<Serv
             },
             Err(err) => {
                 execute_command(
-                    CommandType::AppError(AppError::TaskError(err.to_string())),
+                    CommandType::AppError(&AppError::TaskError(err.to_string())),
                     &config.actions.app_error,
                 )
+                .await
                 .ok();
             }
         }

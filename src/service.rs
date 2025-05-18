@@ -48,24 +48,27 @@ pub async fn query_service(config: Arc<Config>, server_states: ServerStatusList)
                                     ServerStatus::Offline => &config.actions.server_off,
                                 },
                             )
+                            .await
                             .ok();
                             server_states_guard.insert(info.name.clone(), new_status);
                         }
                     }
                     Err(err) => {
                         execute_command(
-                            CommandType::AppError(AppError::TaskError(err.to_string())),
+                            CommandType::AppError(&AppError::TaskError(err.to_string())),
                             &config.actions.app_error,
                         )
+                        .await
                         .ok();
                     }
                 },
                 // Handle the error when joining a task
                 Err(err) => {
                     execute_command(
-                        CommandType::AppError(AppError::TaskError(err.to_string())),
+                        CommandType::AppError(&AppError::TaskError(err.to_string())),
                         &config.actions.app_error,
                     )
+                    .await
                     .ok();
                 }
             }

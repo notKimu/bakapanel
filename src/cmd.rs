@@ -1,13 +1,18 @@
-use std::process::Command;
+use tokio::process::Command;
 
 use crate::{errors::AppError, queries::status::ServerInfo};
 
 pub enum CommandType<'a> {
-    AppError(AppError),
+    AppError(&'a AppError),
     ServerInfo(&'a ServerInfo),
 }
 
-pub fn execute_command(cmd_type: CommandType, command_string: &str) -> Result<(), AppError> {
+// TODO: Fix this mess
+pub async fn execute_command(cmd_type: CommandType<'_>, command_string: &str) -> Result<(), AppError> {
+    if command_string.len() == 0 {
+        return Ok(());
+    }
+
     let command_string = match cmd_type {
         CommandType::AppError(err) => command_string.replace("{ERROR}", &err.to_string()),
         CommandType::ServerInfo(sv_info) => command_string
@@ -21,11 +26,11 @@ pub fn execute_command(cmd_type: CommandType, command_string: &str) -> Result<()
     )))?;
 
     let command_name = &args[0];
-    let command_args = &args[1..];
 
     let output = Command::new(command_name)
-        .args(command_args)
+        .args(args)
         .output()
+        .await
         .map_err(|err| AppError::TaskError(format!("Error executing a command: {}", err)))?;
 
     if output.status.success() {
