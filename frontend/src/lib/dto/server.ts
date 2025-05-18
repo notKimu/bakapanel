@@ -12,6 +12,7 @@ type ServerInfo = {
     name: string;
     host: string;
     port: number;
+    rcon: boolean;
 }
 
 /**

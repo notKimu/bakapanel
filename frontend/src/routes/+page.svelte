@@ -14,18 +14,27 @@
 	let hostErr: any = $state(null);
 	let serverListErr: any = $state(null);
 
+	let serversUp: number = $state(0);
+
 	function updateHostData() {
 		fetchHost().then(data => {
+			hostErr = null;
 			hostData = data;
 		}).catch(err => {
+			hostData = null;
 			hostErr = err;
 		});
 	}
 
 	function updateServerListData() {
 		fetchServerList().then(data => {
+			serverListErr = null;
 			serverListData = data;
+			serverListData.forEach(sv => {
+				if (sv.status) serversUp += 1;
+			});
 		}).catch(err => {
+			serverListData = null;
 			serverListErr = err;
 		});
 	}
@@ -52,9 +61,6 @@
 			<div>
 				<div
 					class="host__thread--list"
-					style={hostData.cpu_threads.length <= 4
-						? `grid-template-columns: repeat(${hostData.cpu_threads.length}, 1fr); grid-template-rows 1fr;`
-						: `grid-template-columns: repeat(${hostData.cpu_threads.length / 2}, 1fr); grid-template-rows 1fr 1fr;`}
 				>
 					{#each hostData.cpu_threads as cpu, idx}
 						<CpuThread {idx} usage={cpu.usage} />
@@ -78,6 +84,34 @@
 	{/if}
 </div>
 
+<footer>
+	<div>
+		{#if hostData}
+			<p>Host is up</p>
+		{:else if hostErr}
+			<p>Error getting host data</p>
+		{:else}
+			<p>Retrieving host status...</p>
+		{/if}
+	</div>
+
+	<div>
+		{#if serverListData}
+			{#if serversUp === serverListData.length}
+				<p>All servers up</p>
+			{:else if serversUp === 0}
+				<p>All servers down</p>
+			{:else}
+				<p>Some servers are down [{serversUp}/{serverListData.length}]</p>
+			{/if}
+		{:else if serverListErr}
+			<p>Error retrieving servers</p>
+		{:else}
+			<p>Fetching servers...</p>
+		{/if}
+	</div>
+</footer>
+
 <p>{hostErr}<br>{serverListErr}</p>
 
 <style>
@@ -96,6 +130,8 @@
 	.host__thread--list {
 		width: 100%;
 		display: grid;
+		grid-template-rows: repeat(2, 1fr);
+		grid-auto-flow: column;
 		gap: var(--padding-m);
 	}
 
@@ -104,5 +140,40 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--padding-s);
+	}
+
+	/* COOL MACOS STYLE FOOTER*/
+	footer {
+		position: fixed;
+		height: 2rem;
+		width: 100vw;
+		left: 0;
+		bottom: 0;
+
+		display: flex;
+
+		border-top: .2rem solid var(--color-4);
+		padding: 0 var(--padding-x);
+	}
+
+	footer div {
+		height: 100%;
+
+		display: flex;
+		align-items: center;
+	}
+	footer div:not(:first-child) {
+		padding-left: var(--padding-x);
+	}
+	footer div:not(:last-child) {
+		padding-right: var(--padding-x);
+		border-right: .2rem solid var(--color-4);
+	}
+
+	/* RESPONSIVE */
+	@media screen and (max-width: 728px) {
+		.host__thread--list {
+			grid-template-rows: repeat(4, 1fr);
+		}
 	}
 </style>

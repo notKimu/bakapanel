@@ -1,10 +1,10 @@
 use std::sync::{Arc, Mutex};
 
-use axum::{extract::State, Json};
+use axum::{extract::State, http::StatusCode, Json};
 use serde::Serialize;
 use sysinfo::System;
 
-use crate::errors::AppError;
+use super::ApiError;
 
 #[derive(Serialize)]
 pub struct SysInfo {
@@ -23,11 +23,12 @@ pub struct CpuInfo {
     frecuency: u64,
 }
 
-pub async fn get_status(
-    State(sys): State<Arc<Mutex<System>>>,
-) -> Result<Json<SysInfo>, Json<AppError>> {
+pub async fn get_status(State(sys): State<Arc<Mutex<System>>>) -> Result<Json<SysInfo>, ApiError> {
     let mut sys = sys.lock().map_err(|err| {
-        AppError::TaskError(format!("Error reading system info: {}", err.to_string()))
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Error reading system info: {}", err.to_string()),
+        )
     })?;
 
     sys.refresh_memory();

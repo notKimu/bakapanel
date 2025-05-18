@@ -1,13 +1,13 @@
 use std::sync::{Arc, Mutex};
 
 use axum::{
-    http::{header::CONTENT_TYPE, Method},
-    routing::get,
+    http::{header::CONTENT_TYPE, Method, StatusCode},
+    routing::{get, post},
     Router,
 };
 use axum_embed::ServeEmbed;
 use rust_embed::RustEmbed;
-use server::{get_all_servers, get_server};
+use server::{get_all_servers, get_server, send_rcon_command};
 use status::get_status;
 use sysinfo::System;
 use tower_http::cors::{Any, CorsLayer};
@@ -16,6 +16,8 @@ use crate::{config::Config, errors::AppError};
 
 pub mod server;
 pub mod status;
+
+pub type ApiError = (StatusCode, String);
 
 #[derive(RustEmbed, Clone)]
 #[folder = "frontend/build/"]
@@ -35,6 +37,10 @@ pub async fn start(config: Arc<Config>, system: Arc<Mutex<System>>) -> Result<()
         .route(
             "/api/server/{name}",
             get(get_server).with_state(config.clone()),
+        )
+        .route(
+            "/api/server/{name}/rcon",
+            post(send_rcon_command).with_state(config.clone()),
         )
         .route("/api/status", get(get_status).with_state(system.clone()));
 

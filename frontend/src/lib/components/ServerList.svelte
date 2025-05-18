@@ -28,7 +28,9 @@
       {#if server.status}
         <p>{server.status.players.online}/{server.status.players.max}</p>
       {:else}
-        <p class="blink">offline</p>
+        <div class="server__info__error">
+          <p>Offline</p>
+        </div>
       {/if}
     </div>
   </div>
@@ -55,13 +57,14 @@
     image-rendering: pixelated;
   }
 
-  /* .server__status__icon {
-    height: 1rem;
-    width: 1rem;
-  } */
-
   .server__info {
     display: flex;
     justify-content: space-between;
+  }
+
+  .server__info__error {
+    display: flex;
+    align-items: center;
+    gap: var(--padding-s);
   }
 </style>

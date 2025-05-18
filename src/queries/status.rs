@@ -11,6 +11,7 @@ pub struct ServerInfo {
     pub name: String,
     pub host: String,
     pub port: u16,
+    pub rcon: bool,
 }
 
 pub async fn query_server(server_config: &ServerConfig) -> Result<StatusResponse, AppError> {
@@ -35,6 +36,7 @@ pub async fn query_all_servers(
                     name: name_clone,
                     host: config_clone.host,
                     port: config_clone.port,
+                    rcon: config_clone.rcon.is_some()
                 },
             )
         });

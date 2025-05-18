@@ -11,27 +11,25 @@
 </header>
 <div class="header__filler"></div>
 
+<img class="miku01" src={MikuLogoImg} alt="">
+
 <main>
     {@render children()}
 </main>
 
-<div class="miku01">
-    <img src={MikuLogoImg} alt="">
-</div>
-
 <style>
     header {
         position: fixed;
-        left: 0;
-        top: 0;
-
         height: 3rem;
         width: 100vw;
+        left: 0;
+        top: 0;
 
         display: flex;
         align-items: center;
 
         padding: 0 var(--padding-horizontal);
+        z-index: 1000;
     }
 
     .header__filler {
@@ -40,13 +38,17 @@
 
     .miku01 {
         position: fixed;
-        bottom: var(--padding-vertical);
-        right: var(--padding-horizontal);
-        height: 5rem;
-    }
-    .miku01 img {
-        height: 100%;
-        width: auto;
+        height: 15rem;
+        bottom: 3rem;
+        right: var(--padding-vertical);
+
         image-rendering: pixelated;
+        opacity: .25;
+        z-index: 0;
+    }
+
+    main {
+        position: relative;
+        z-index: 10;
     }
 </style>

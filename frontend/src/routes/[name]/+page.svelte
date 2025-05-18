@@ -2,8 +2,13 @@
 	import { fetchServer } from "$lib/api/server";
 	import type { ChatObject } from "$lib/dto";
     import type { PageProps } from "../$types";
+	import RconConsole from "$lib/components/server/RconConsole.svelte";
+    // Images
+    import ServerIconImg from "$lib/assets/img/server-icon.png";
 
     let { data }: PageProps = $props();
+
+    const serverName = data.slug;
 
     function renderMotd(motd: ChatObject): string {
         let text = "";
@@ -37,42 +42,37 @@
 
         return text.replace("\n", "<br>");
     }
-
-    // ERROR DVD BOUNCY
-    let rect: DOMRect = $state(new DOMRect());
-    let x = $state(0);
-    let y = $state(0);
 </script>
 
 <div class="server__name">
-    <h1>{data.slug}</h1>
+    <h1>{serverName}</h1>
 </div>
     
-{#await fetchServer(data.slug)}
+{#await fetchServer(serverName)}
     <p>Fetching server...</p>
 {:then server}
-    {#if server.status}
         <div class="server__status">
             <div class="server__status__motd">
-                <img src={server.status?.favicon} alt="">
+                <img src={server.status!.favicon || ServerIconImg} alt="">
                 <div class="server__status__motd__text">
-                    <span class="motd" style="overflow-x: auto; white-space: pre; display:inline-block">{@html renderMotd(server.status.description)}</span>
+                    <span class="motd" style="overflow-x: auto; white-space: pre; display:inline-block">{@html renderMotd(server.status!.description)}</span>
                 </div>
             </div>
 
             <div class="server__status__info">
                 <p><b>Host:</b> {server.info.host}:{server.info.port}</p>
-                <p><b>Version:</b> {server.status.version.name} : {server.status.version.protocol}</p>
-                <p><b>Players:</b> {server.status.players.online} / {server.status.players.max}</p>
+                <p><b>Version:</b> {server.status!.version.name} : {server.status!.version.protocol}</p>
+                <p><b>Players:</b> {server.status!.players.online} / {server.status!.players.max}</p>
             </div>
+
+            {#if server.info.rcon}
+                <RconConsole serverName={serverName} />
+            {/if}
         </div>
-    {:else if server.error}
-        {#each Object.entries(server.error) as [key, val]}
-            <p bind:contentRect={rect} style={`position: absolute; left: ${x}px; top: ${y}px;`} class="error">{key} : {val}</p>
-        {/each}
-    {/if}
 {:catch err}
-    <p>Error: {err}</p>
+    <div class="error">
+        <p>Unable to reach this server</p>
+    </div>
 {/await}
 
 
@@ -114,8 +114,13 @@
         gap: var(--padding-x);
     }
 
+    /* ERROR DISPLAY */
     .error {
-        color: var(--color-3);
+        background-color: var(--color-4);
+        padding: var(--padding-m);
+    }
+    .error * {
+        color: var(--color-2);
     }
 
     /* RESPONSIVE */
