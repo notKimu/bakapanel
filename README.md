@@ -6,13 +6,14 @@ BakaPanel is a lightweight admin panel for Minecraft networks
 
 - A query service which notifies of changes in the state of your servers
 - Frontend to view the state of your host and servers
+- RCON command support
 
 ## TODO
 
-- Add RCON command support
 - Service to manage the uptime of the servers
 - Page to test the event commands
 - Automate the build of the frontend when building the backend
+- Tests...
 
 ## Build
 
