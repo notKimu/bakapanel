@@ -32,7 +32,7 @@ cargo build --release
 
 ## Config File
 
-When the program is executed, it searches for a config file named `config.toml` in the current directory.
+When the program is executed, it searches for a config file named `config.toml` in the current directory, if it doesn't exist, the default one is created.
 
 This config file is provided with a template to send discord messages to a channel on events via curl.
 
